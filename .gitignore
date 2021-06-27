@@ -35,3 +35,7 @@
 *.cbp
 *.depend
 *.layout
+
+
+# Tester class
+tester.cpp
