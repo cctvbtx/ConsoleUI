@@ -117,7 +117,7 @@ void Table::drawRow(const vector<string> &vec, int idx) {
 void Table::drawTitle() {
 
     if(_title.length() > calculateWidth()) {
-        throw length_error("Title cannot be longer than the size of the table"); //TODO: Maybe trim the title if it's too long instead?
+        _title = _title.substr(0, calculateWidth());
     }
 
     int padding = (calculateWidth() - _title.length()) / 2;
