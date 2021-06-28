@@ -27,7 +27,7 @@ public:
     void remove_item(int _index);
     int show_menu();
     std::string get_text(int index);
-    ConMenu(conUI output);
+    ConMenu(const conUI &output);
 };
 
 #endif // MENU_H

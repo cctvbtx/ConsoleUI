@@ -1,6 +1,10 @@
 #include <iostream>
 
+#include "windows.h"
+#include "wincon.h"
+
 #include "table.h"
+
 
 //TODO: Make an extended class with cOlOrS
 
@@ -51,6 +55,12 @@ void Table::setTitle(string title) {
     _title = title;
 }
 
+void Table::setValue(int row, int col, string _text) {
+    if(row < values.size() && col < values[0].size()) {
+        values[row][col] = _text;
+    }
+}
+
 int Table::calculateWidth() {
     int len = 0;
 
@@ -83,7 +93,7 @@ void Table::drawHorLine() {
         cout << '-';
     }
 
-    cout << endl;
+    cout << '\n';
 
 }
 
@@ -111,7 +121,7 @@ void Table::drawRow(const vector<string> &vec, int idx) {
             cout << '|';
 
         }
-        cout << endl;
+        cout << '\n';
 }
 
 void Table::drawTitle() {
@@ -131,7 +141,7 @@ void Table::drawTitle() {
     for(int ii = 0; ii < (isOdd ? padding + 1 : padding); ii++)
         cout << ' ';
 
-    cout << endl;
+    cout << '\n';
 }
 
 void Table::draw() {
@@ -145,4 +155,81 @@ void Table::draw() {
     }
 
     drawHorLine();
+}
+
+//SelectionTable
+
+SelectionTable::SelectionTable(const conUI &ui, string title) {
+    _ui = ui;
+    _title = title;
+}
+
+void SelectionTable::drawRow(const vector<string> &vec, int idx) {
+
+    if(idx == selected_idx) {
+        _ui.invertColors();
+    }
+
+    if(showRowLabels) {
+
+        if(idx == -1) {
+            cout << repeatStr(" ", getLabelsWidth());
+        } else {
+            cout << rows[idx] << repeatStr(" ", getLabelsWidth() - rows[idx].length());
+        }
+    }
+
+    cout << (showRowLabels ? "||" : "|");
+
+    for(int i = 0; i < vec.size(); i++) {
+
+        int padding = (getColumnWidth(i) - vec[i].size()) / 2;
+
+        bool isOdd = (getColumnWidth(i) - vec[i].size()) % 2;
+
+        cout << repeatStr(" ", padding) << vec[i] << repeatStr(" ", isOdd ? padding + 1 : padding);
+
+        cout << '|';
+
+    }
+
+    cout << '\n';
+
+    if(idx == selected_idx) {
+        _ui.invertColors();
+    }
+
+}
+
+int SelectionTable::show() {
+
+    draw();
+
+    while(1) {
+        KEY_EVENT_RECORD input_event = _ui.waitForKbEvent();
+
+        switch(input_event.wVirtualKeyCode) {
+            case VK_UP:
+
+                if(selected_idx != 0)
+                    selected_idx--;
+
+                break;
+
+            case VK_DOWN:
+
+                if(selected_idx != values.size() - 1)
+                    selected_idx++;
+
+                break;
+
+            case VK_ESCAPE:
+                return -1;
+
+            case VK_RETURN:
+                return selected_idx;
+        }
+        system("cls");
+        draw();
+    }
 }

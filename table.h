@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "conui.h"
 
 typedef unsigned short WORD;
 
@@ -10,6 +11,7 @@ using namespace std;
 
 class Table {
 
+protected:
     vector<vector<string>> values;
 
     vector<string> rows;        //For storing the row and column labels
@@ -23,11 +25,11 @@ class Table {
     int getColumnWidth(int index);
     int getLabelsWidth();
     void drawHorLine();
-    void drawRow(const vector<string> &vec, int idx);
+    virtual void drawRow(const vector<string> &vec, int idx);
     void drawTitle();
 
 
-    public:
+public:
 
     Table() = default;
     Table(string title);
@@ -48,5 +50,18 @@ class Table {
 
     void draw();
 
+};
+
+class SelectionTable : public Table {
+
+    int selected_idx = 0;
+    conUI _ui;
+
+    void drawRow(const vector<string> &vec, int idx);
+
+    public:
+
+    SelectionTable(const conUI &ui, string title = "");
+    int show();
 };
 #endif

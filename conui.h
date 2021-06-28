@@ -20,7 +20,7 @@ void printcol(const char* _string, WORD foreground = 0x7, WORD background = 0x0)
 void setbc(WORD _background);
 void setfc(WORD _foreground);
 void resetColors();
-void debug();
+void invertColors();
 void clearScreen();
 KEY_EVENT_RECORD waitForKbEvent();
 conUI(HANDLE h_out, HANDLE h_in);

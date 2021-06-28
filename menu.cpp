@@ -83,7 +83,7 @@ void ConMenu::update() {
         if(selected_index == i)
             ui.printcol(" X ", current_item.check_color, 0x00);
 
-        cout << " ]" << endl;
+        cout << " ]" << '\n';
 
         //ui.resetColors();
 
@@ -99,7 +99,7 @@ void ConMenu::remove_item(int _index) {
         _items.erase(_items.begin() + _index);
 }
 
-ConMenu::ConMenu(conUI output) { ui = output; };
+ConMenu::ConMenu(const conUI &output) { ui = output; };
 
 string ConMenu::get_text(int index) {
     return _items[index].text;

@@ -89,14 +89,6 @@ void conUI::resetColors() {
 
 }
 
-void conUI::debug() {
-
-    cout << "Current set bg is: " << current_bg << endl;
-    cout << "Current set fg is: " << current_fg << endl;
-    cout << "Console Text Attributes will be set to: 0x" << (current_bg | current_fg) << endl;
-    cout << "Output handle is: " << (output_handle == INVALID_HANDLE_VALUE ? "invalid" : "valid") << endl;
-}
-
 KEY_EVENT_RECORD conUI::waitForKbEvent() {
 
     INPUT_RECORD inBuffer[64];
@@ -124,6 +116,7 @@ KEY_EVENT_RECORD conUI::waitForKbEvent() {
 }
 
 void conUI::clearScreen() {
+
     COORD tl = {0,0};
     CONSOLE_SCREEN_BUFFER_INFO s;
     GetConsoleScreenBufferInfo(output_handle, &s);
@@ -131,4 +124,14 @@ void conUI::clearScreen() {
     FillConsoleOutputCharacter(output_handle, ' ', cells, tl, &written);
     FillConsoleOutputAttribute(output_handle, s.wAttributes, cells, tl, &written);
     SetConsoleCursorPosition(output_handle, tl);
+}
+
+void conUI::invertColors() {
+
+    WORD new_fg = current_bg>>4;
+    WORD new_bg = current_fg<<4;
+    current_fg = new_fg;
+    current_bg = new_bg;
+    SetConsoleTextAttribute(output_handle, current_fg | current_bg);
+
 }
