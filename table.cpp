@@ -8,6 +8,14 @@ Table::Table(string title) {
     _title = title;
 }
 
+string Table::repeatStr(string text, int n) {
+    string txt = "";
+    for(int i = 0; i < n; i++) {
+        txt.append(text);
+    }
+    return txt;
+}
+
 void Table::addColumn(string _text) {
     columns.push_back(_text);
 }
@@ -16,13 +24,28 @@ void Table::removeColumn(int _index) {
     columns.erase(begin(columns) + _index);
 }
 
-void Table::addRow(vector<string> row) {    //TODO: Add labels for rows
+void Table::addRow(vector<string> row, string label) {
     if(row.size() != columns.size()){
         throw invalid_argument("Passed arguments do not match table size");
         return;
     }
     values.push_back(row);
+    rows.push_back(label);
 
+    if(label != "") {
+        showRowLabels = true;
+    }
+
+}
+
+int Table::getLabelsWidth() {
+    int _max = 0;
+    for(string s : rows) {
+        if(s.length() > _max)
+            _max = s.length();
+    }
+
+    return _max > 0 ? _max + 2 : -1;
 }
 
 void Table::setTitle(string title) {
@@ -37,6 +60,8 @@ int Table::calculateWidth() {
     }
 
     len += columns.size() + 1;
+
+    len += getLabelsWidth() + 1;
 
     return len;
 }
@@ -64,8 +89,18 @@ void Table::drawHorLine() {
     return;
 }
 
-void Table::drawRow(vector<string> vec) {
-    cout << '|';
+void Table::drawRow(vector<string> vec, int idx) {
+
+    if(showRowLabels) {
+
+        if(idx == -1) {
+            cout << repeatStr(" ", getLabelsWidth());
+        } else {
+            cout << rows[idx] << repeatStr(" ", getLabelsWidth() - rows[idx].length());
+        }
+    }
+
+    cout << (showRowLabels ? "||" : "|");
 
         for(int i = 0; i < vec.size(); i++) {
 
@@ -73,13 +108,7 @@ void Table::drawRow(vector<string> vec) {
 
             bool isOdd = (getColumnWidth(i) - vec[i].size()) % 2;
 
-            for(int ii = 0; ii < padding; ii++)
-                cout << ' ';
-
-            cout << vec[i];
-
-            for(int ii = 0; ii < (isOdd ? padding + 1 : padding); ii++)
-                cout << ' ';
+            cout << repeatStr(" ", padding) << vec[i] << repeatStr(" ", isOdd ? padding + 1 : padding);
 
             cout << '|';
 
@@ -110,11 +139,12 @@ void Table::drawTitle() {
 void Table::draw() {
     drawTitle();
     drawHorLine();
-    drawRow(columns);
+    drawRow(columns, -1);
     drawHorLine();
 
-    for(vector<string> col : values)
-        drawRow(col);
+    for(int i = 0; i < values.size(); i++){
+        drawRow(values[i], i);
+    }
 
     drawHorLine();
 }
