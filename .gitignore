@@ -36,6 +36,12 @@
 *.depend
 *.layout
 
+# CLion files
+
+.idea
+cmake-build-debug
+.run
+CMakeLists.txt
 
 # Tester class
 tester.cpp
