@@ -9,7 +9,7 @@ Table::Table(string title) {
 }
 
 string Table::repeatStr(string text, int n) {
-    string txt = "";
+    string txt;
     for(int i = 0; i < n; i++) {
         txt.append(text);
     }
@@ -24,10 +24,9 @@ void Table::removeColumn(int _index) {
     columns.erase(begin(columns) + _index);
 }
 
-void Table::addRow(vector<string> row, string label) {
+void Table::addRow(const vector<string> &row, string label) {
     if(row.size() != columns.size()){
         throw invalid_argument("Passed arguments do not match table size");
-        return;
     }
     values.push_back(row);
     rows.push_back(label);
@@ -86,10 +85,9 @@ void Table::drawHorLine() {
 
     cout << endl;
 
-    return;
 }
 
-void Table::drawRow(vector<string> vec, int idx) {
+void Table::drawRow(const vector<string> &vec, int idx) {
 
     if(showRowLabels) {
 

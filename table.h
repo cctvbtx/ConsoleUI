@@ -15,18 +15,17 @@ class Table {
     vector<string> rows;        //For storing the row and column labels
     vector<string> columns;
 
-    string _title = "";
+    string _title;
 
     bool showRowLabels = false;
 
     int calculateWidth();
-    int getColumnWidth();
+    int getColumnWidth(int index);
     int getLabelsWidth();
     void drawHorLine();
-    void drawColumnNames();
-    void drawRow(vector<string> vec, int idx);
+    void drawRow(const vector<string> &vec, int idx);
     void drawTitle();
-    int getColumnWidth(int index);
+
 
     public:
 
@@ -39,9 +38,9 @@ class Table {
     void removeColumn(int _index);
     void insertColumn(string _text, int _index);
 
-    void addRow(vector<string> _values, string label = "");
+    void addRow(const vector<string> &_values, string label = "");
     void removeRow(int _index);
-    void insertRow(vector<string> _values, int _index, string label = "");
+    void insertRow(const vector<string> &_values, int _index, string label = "");
 
     void setValue(int row, int col, string _text);
 
