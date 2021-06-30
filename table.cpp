@@ -8,11 +8,13 @@
 
 //TODO: Make an extended class with cOlOrS
 
-Table::Table(string title) {
+//TODO: Newlines break the table
+
+Table::Table(const string &title) {
     _title = title;
 }
 
-string Table::repeatStr(string text, int n) {
+string Table::repeatStr(const string &text, int n) {
     string txt;
     for(int i = 0; i < n; i++) {
         txt.append(text);
@@ -20,7 +22,7 @@ string Table::repeatStr(string text, int n) {
     return txt;
 }
 
-void Table::addColumn(string _text) {
+void Table::addColumn(const string &_text) {
     columns.push_back(_text);
 }
 
@@ -51,7 +53,7 @@ int Table::getLabelsWidth() {
     return _max > 0 ? _max + 2 : -1;
 }
 
-void Table::setTitle(string title) {
+void Table::setTitle(const string &title) {
     _title = title;
 }
 
@@ -164,41 +166,23 @@ SelectionTable::SelectionTable(const conUI &ui, string title) {
     _title = title;
 }
 
-void SelectionTable::drawRow(const vector<string> &vec, int idx) {
+void SelectionTable::draw() {
+    drawTitle();
+    drawHorLine();
+    drawRow(columns, -1);
+    drawHorLine();
 
-    if(idx == selected_idx) {
-        _ui.invertColors();
-    }
-
-    if(showRowLabels) {
-
-        if(idx == -1) {
-            cout << repeatStr(" ", getLabelsWidth());
+    for(int i = 0; i < values.size(); i++){
+        if(i == selected_idx) {
+            _ui.invertColors();
+            drawRow(values[i], i);
+            _ui.invertColors();
         } else {
-            cout << rows[idx] << repeatStr(" ", getLabelsWidth() - rows[idx].length());
+            drawRow(values[i], i);
         }
     }
 
-    cout << (showRowLabels ? "||" : "|");
-
-    for(int i = 0; i < vec.size(); i++) {
-
-        int padding = (getColumnWidth(i) - vec[i].size()) / 2;
-
-        bool isOdd = (getColumnWidth(i) - vec[i].size()) % 2;
-
-        cout << repeatStr(" ", padding) << vec[i] << repeatStr(" ", isOdd ? padding + 1 : padding);
-
-        cout << '|';
-
-    }
-
-    cout << '\n';
-
-    if(idx == selected_idx) {
-        _ui.invertColors();
-    }
-
+    drawHorLine();
 }
 
 int SelectionTable::show() {

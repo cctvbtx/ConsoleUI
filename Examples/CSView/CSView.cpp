@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         if(allEmpty(cols))  //Skip empty rows
             break;
 
-        string label = cols[0];              //This assumes the row names are always in the first column, should probably improve it or something
+        string label = cols[0];
 
         if(i == 0) {
             cols.erase(cols.begin());
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 
         deleteEmpty(cols);
 
-        cols.erase(cols.begin());   //Also assumes the row names are in the first column
+        cols.erase(cols.begin());
         tab.addRow(cols, label);
     }
 
