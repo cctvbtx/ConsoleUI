@@ -23,8 +23,8 @@ protected:
 
     bool showRowLabels = false;
 
-    int calculateWidth();
-    int getColumnWidth(int index);
+    unsigned int calculateWidth();
+    unsigned int getColumnWidth(int index);
     int getLabelsWidth();
     void drawHorLine();
     virtual void drawRow(const vector<string> &vec, int idx);
@@ -34,7 +34,7 @@ protected:
 public:
 
     Table() = default;
-    Table(const string &title);
+    explicit Table(const string &title);
 
     static string repeatStr(const string &text, int n);
 
@@ -42,15 +42,15 @@ public:
     void removeColumn(int _index);
     void insertColumn(const string &_text, int _index);
 
-    void addRow(const vector<string> &_values, string label = "");
+    void addRow(const vector<string> &_values, const string &label = "");
     void removeRow(int _index);
-    void insertRow(const vector<string> &_values, int _index, string label = "");
+    void insertRow(const vector<string> &row, int _index, const string &label = "");
 
-    void setValue(int row, int col, string _text);
+    void setValue(int row, int col, const string &_text);
 
     void setTitle(const string &_text);
 
-    void draw();
+    virtual void draw();
 
 };
 
@@ -59,11 +59,11 @@ class SelectionTable : public Table {
     int selected_idx = 0;
     conUI _ui;
 
-    void draw();
+    void draw() override;
 
     public:
 
-    SelectionTable(const conUI &ui, string title = "");
+    explicit SelectionTable(const conUI &ui, const string &title = "");
     int show();
 };
 #endif

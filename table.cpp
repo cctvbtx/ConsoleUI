@@ -26,11 +26,55 @@ void Table::addColumn(const string &_text) {
     columns.push_back(_text);
 }
 
-void Table::removeColumn(int _index) {
-    columns.erase(begin(columns) + _index);
+void Table::insertColumn(const string &_text, int _index) {
+
+    if(columns.begin() + _index > columns.end()) {
+        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+    }
+
+    columns.insert(columns.begin() + _index, _text);
+    for(auto &row : values) {
+        row.insert(row.begin() + _index, "");
+    }
 }
 
-void Table::addRow(const vector<string> &row, string label) {
+void Table::removeColumn(int _index) {
+    if(_index > columns.size() - 1) {
+        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+    }
+
+    columns.erase(columns.begin() + _index);
+    for(auto &v : values) {
+        v.erase(v.begin() + _index);
+    }
+}
+
+void Table::removeRow(int _index) {
+    if(_index > values.size() - 1) {
+        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+    }
+    rows.erase(rows.begin() + _index);
+    values.erase(values.begin() + _index);
+}
+
+void Table::insertRow(const vector<string> &row, int _index, const string &label) {
+    if(row.size() != columns.size()){
+        throw invalid_argument("Passed arguments do not match table size");
+    }
+
+    if(values.begin() + _index > values.end()) {
+        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+    }
+
+    values.insert(values.begin() + _index, row);
+    rows.insert(rows.begin() + _index, label);
+
+    if(label != "") {
+        showRowLabels = true;
+    }
+}
+
+void Table::addRow(const vector<string> &row, const string &label) {
     if(row.size() != columns.size()){
         throw invalid_argument("Passed arguments do not match table size");
     }
@@ -45,7 +89,7 @@ void Table::addRow(const vector<string> &row, string label) {
 
 int Table::getLabelsWidth() {
     int _max = 0;
-    for(string s : rows) {
+    for(const string &s : rows) {
         if(s.length() > _max)
             _max = s.length();
     }
@@ -57,13 +101,15 @@ void Table::setTitle(const string &title) {
     _title = title;
 }
 
-void Table::setValue(int row, int col, string _text) {
+void Table::setValue(int row, int col, const string &_text) {
     if(row < values.size() && col < values[0].size()) {
         values[row][col] = _text;
+    } else {
+        throw range_error("Index out of bounds for table (" + _title + ").");
     }
 }
 
-int Table::calculateWidth() {
+unsigned int Table::calculateWidth() {
     int len = 0;
 
     for(int i = 0; i < columns.size(); i++) {
@@ -77,11 +123,11 @@ int Table::calculateWidth() {
     return len;
 }
 
-int Table::getColumnWidth(int index) {
-    int _max = columns[index].size();
+unsigned int Table::getColumnWidth(int index) {
+    unsigned int _max = columns[index].size();
 
-    for(vector<string> row : values) {
-        if((int)row[index].size() > _max)
+    for(auto &row : values) {
+        if(row[index].size() > _max)
             _max = row[index].size();
     }
 
@@ -89,7 +135,7 @@ int Table::getColumnWidth(int index) {
 }
 
 void Table::drawHorLine() {
-    int length = calculateWidth();
+    unsigned int length = calculateWidth();
 
     for(int i = 0; i < length; i++) {
         cout << '-';
@@ -161,7 +207,7 @@ void Table::draw() {
 
 //SelectionTable
 
-SelectionTable::SelectionTable(const conUI &ui, string title) {
+SelectionTable::SelectionTable(const conUI &ui, const string &title) {
     _ui = ui;
     _title = title;
 }
@@ -189,7 +235,7 @@ int SelectionTable::show() {
 
     draw();
 
-    while(1) {
+    while(true) {
         KEY_EVENT_RECORD input_event = _ui.waitForKbEvent();
 
         switch(input_event.wVirtualKeyCode) {
