@@ -7,7 +7,7 @@
 
 typedef unsigned short WORD;
 
-using namespace std;
+using std::vector, std::string;
 
 class Table {
 
@@ -27,7 +27,7 @@ protected:
     unsigned int getColumnWidth(int index);
     int getLabelsWidth();
     void drawHorLine();
-    virtual void drawRow(const vector<string> &vec, int idx);
+    virtual void drawRow(const vector<string> &vec, int index);
     void drawTitle();
 
 
@@ -36,15 +36,13 @@ public:
     Table() = default;
     explicit Table(const string &title);
 
-    static string repeatStr(const string &text, int n);
-
-    void addColumn(const string &_text);
-    void removeColumn(int _index);
-    void insertColumn(const string &_text, int _index);
+    void addColumn(const string &text);
+    void removeColumn(int index);
+    void insertColumn(const string &text, int index);
 
     void addRow(const vector<string> &_values, const string &label = "");
-    void removeRow(int _index);
-    void insertRow(const vector<string> &row, int _index, const string &label = "");
+    void removeRow(int index);
+    void insertRow(const vector<string> &row, int index, const string &label = "");
 
     void setValue(int row, int col, const string &_text);
 

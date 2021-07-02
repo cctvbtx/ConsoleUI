@@ -5,6 +5,8 @@
 
 #include "table.h"
 
+using namespace std;
+
 
 //TODO: Make an extended class with cOlOrS
 
@@ -14,7 +16,7 @@ Table::Table(const string &title) {
     _title = title;
 }
 
-string Table::repeatStr(const string &text, int n) {
+string repeatStr(const string &text, int n) {
     string txt;
     for(int i = 0; i < n; i++) {
         txt.append(text);
@@ -22,52 +24,52 @@ string Table::repeatStr(const string &text, int n) {
     return txt;
 }
 
-void Table::addColumn(const string &_text) {
-    columns.push_back(_text);
+void Table::addColumn(const string &text) {
+    columns.push_back(text);
 }
 
-void Table::insertColumn(const string &_text, int _index) {
+void Table::insertColumn(const string &text, int index) {
 
-    if(columns.begin() + _index > columns.end()) {
-        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+    if(columns.begin() + index > columns.end()) {
+        throw range_error("Index (" + to_string(index) + ") out of bounds for table (" + _title + ").");
     }
 
-    columns.insert(columns.begin() + _index, _text);
+    columns.insert(columns.begin() + index, text);
     for(auto &row : values) {
-        row.insert(row.begin() + _index, "");
+        row.insert(row.begin() + index, "");
     }
 }
 
-void Table::removeColumn(int _index) {
-    if(_index > columns.size() - 1) {
-        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+void Table::removeColumn(int index) {
+    if(index > columns.size() - 1) {
+        throw range_error("Index (" + to_string(index) + ") out of bounds for table (" + _title + ").");
     }
 
-    columns.erase(columns.begin() + _index);
+    columns.erase(columns.begin() + index);
     for(auto &v : values) {
-        v.erase(v.begin() + _index);
+        v.erase(v.begin() + index);
     }
 }
 
-void Table::removeRow(int _index) {
-    if(_index > values.size() - 1) {
-        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+void Table::removeRow(int index) {
+    if(index > values.size() - 1) {
+        throw range_error("Index (" + to_string(index) + ") out of bounds for table (" + _title + ").");
     }
-    rows.erase(rows.begin() + _index);
-    values.erase(values.begin() + _index);
+    rows.erase(rows.begin() + index);
+    values.erase(values.begin() + index);
 }
 
-void Table::insertRow(const vector<string> &row, int _index, const string &label) {
+void Table::insertRow(const vector<string> &row, int index, const string &label) {
     if(row.size() != columns.size()){
         throw invalid_argument("Passed arguments do not match table size");
     }
 
-    if(values.begin() + _index > values.end()) {
-        throw range_error("Index (" + to_string(_index) + ") out of bounds for table (" + _title + ").");
+    if(values.begin() + index > values.end()) {
+        throw range_error("Index (" + to_string(index) + ") out of bounds for table (" + _title + ").");
     }
 
-    values.insert(values.begin() + _index, row);
-    rows.insert(rows.begin() + _index, label);
+    values.insert(values.begin() + index, row);
+    rows.insert(rows.begin() + index, label);
 
     if(label != "") {
         showRowLabels = true;
@@ -145,14 +147,14 @@ void Table::drawHorLine() {
 
 }
 
-void Table::drawRow(const vector<string> &vec, int idx) {
+void Table::drawRow(const vector<string> &vec, int index) {
 
     if(showRowLabels) {
 
-        if(idx == -1) {
+        if(index == -1) {
             cout << repeatStr(" ", getLabelsWidth());
         } else {
-            cout << rows[idx] << repeatStr(" ", getLabelsWidth() - rows[idx].length());
+            cout << rows[index] << repeatStr(" ", getLabelsWidth() - rows[index].length());
         }
     }
 
