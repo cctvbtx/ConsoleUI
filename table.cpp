@@ -1,4 +1,6 @@
+#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
 #include <iostream>
+#include <sstream>
 
 #include "windows.h"
 #include "wincon.h"
@@ -7,14 +9,7 @@
 
 using namespace std;
 
-
-//TODO: Make an extended class with cOlOrS
-
-//TODO: Newlines break the table
-
-Table::Table(const string &title) {
-    _title = title;
-}
+//Helper functions
 
 string repeatStr(const string &text, int n) {
     string txt;
@@ -22,6 +17,25 @@ string repeatStr(const string &text, int n) {
         txt.append(text);
     }
     return txt;
+}
+
+vector<string> split(const string &s, const char f) {
+
+    vector<string> st;
+    istringstream is(s);
+    string tok;
+
+    while(getline(is, tok, f)) {
+        st.push_back(tok);
+    }
+
+    return st;
+}
+
+//Table class
+
+Table::Table(const string &title) {
+    _title = title;
 }
 
 void Table::addColumn(const string &text) {
@@ -59,42 +73,90 @@ void Table::removeRow(int index) {
     values.erase(values.begin() + index);
 }
 
-void Table::insertRow(const vector<string> &row, int index, const string &label) {
-    if(row.size() != columns.size()){
-        throw invalid_argument("Passed arguments do not match table size");
-    }
+void Table::insertRow(const vector<string> &row, int index, const string &label) { //TODO: Newlines still break the table when using this
 
-    if(values.begin() + index > values.end()) {
+    if(row.size() != columns.size())
+        throw invalid_argument("Passed arguments do not match table size");
+
+    if(values.begin() + index > values.end())
         throw range_error("Index (" + to_string(index) + ") out of bounds for table (" + _title + ").");
-    }
 
     values.insert(values.begin() + index, row);
     rows.insert(rows.begin() + index, label);
 
-    if(label != "") {
+    if(!label.empty())
         showRowLabels = true;
-    }
 }
 
-void Table::addRow(const vector<string> &row, const string &label) {
-    if(row.size() != columns.size()){
-        throw invalid_argument("Passed arguments do not match table size");
-    }
-    values.push_back(row);
+void Table::addRow(vector<string> row, const string &label) {
+
+    bool has_newlines = false;
+
     rows.push_back(label);
 
-    if(label != "") {
+    if(!label.empty())
         showRowLabels = true;
+
+    if(row.size() > columns.size()){
+
+        throw invalid_argument("Passed arguments do not match table size");
+
+    } else if(row.size() < columns.size()) {
+
+        for(int i = row.size(); i < columns.size(); i++)
+            row.emplace_back("");
     }
+
+   for(const string &s : row) {
+        if(s.find('\n') != string::npos) {
+            has_newlines = true;
+            break;
+        }
+    }
+
+
+    if(has_newlines) {
+
+        vector<vector<string>> newrows;
+        int maxlines = 1;
+        for(const string &s : row) {
+
+            vector<string> lines = split(s, '\n');
+
+            if(lines.size() > maxlines)
+                maxlines = lines.size();
+
+            newrows.push_back(lines);
+        }
+
+        for(int i = 0; i < maxlines; i++) {
+            vector<string> a;
+            for(const vector<string> &v : newrows) {
+
+                if(v.size() - 1 < i) {
+                    a.emplace_back("");
+                } else {
+                    a.push_back(v[i]);
+                }
+            }
+            values.push_back(a);
+            if(i != maxlines - 1) {
+                rows.emplace_back("");
+            }
+        }
+        return;
+    }
+
+    values.push_back(row);
 
 }
 
 int Table::getLabelsWidth() {
     int _max = 0;
-    for(const string &s : rows) {
+
+    for(const string &s : rows)
         if(s.length() > _max)
             _max = s.length();
-    }
 
     return _max > 0 ? _max + 2 : -1;
 }
@@ -102,6 +164,7 @@ int Table::getLabelsWidth() {
 void Table::setTitle(const string &title) {
     _title = title;
 }
+
 
 void Table::setValue(int row, int col, const string &_text) {
     if(row < values.size() && col < values[0].size()) {
@@ -136,14 +199,9 @@ unsigned int Table::getColumnWidth(int index) {
     return _max + 4; //Four characters for two padding spaces on each side
 }
 
-void Table::drawHorLine() {
-    unsigned int length = calculateWidth();
+void Table::drawLine() {
 
-    for(int i = 0; i < length; i++) {
-        cout << '-';
-    }
-
-    cout << '\n';
+    cout << repeatStr("-", calculateWidth()) << '\n';
 
 }
 
@@ -166,9 +224,7 @@ void Table::drawRow(const vector<string> &vec, int index) {
 
             bool isOdd = (getColumnWidth(i) - vec[i].size()) % 2;
 
-            cout << repeatStr(" ", padding) << vec[i] << repeatStr(" ", isOdd ? padding + 1 : padding);
-
-            cout << '|';
+            cout << repeatStr(" ", padding) << vec[i] << repeatStr(" ", isOdd ? padding + 1 : padding) << '|';
 
         }
         cout << '\n';
@@ -176,38 +232,29 @@ void Table::drawRow(const vector<string> &vec, int index) {
 
 void Table::drawTitle() {
 
-    if(_title.length() > calculateWidth()) {
+    if(_title.length() > calculateWidth())
         _title = _title.substr(0, calculateWidth());
-    }
 
     int padding = (calculateWidth() - _title.length()) / 2;
     bool isOdd = (calculateWidth() - _title.length()) % 2;
 
-    for(int ii = 0; ii < padding; ii++)
-        cout << ' ';
+    cout << repeatStr(" ", padding) << _title << repeatStr(" ", isOdd ? padding + 1 : padding) << '\n';
 
-    cout << _title;
-
-    for(int ii = 0; ii < (isOdd ? padding + 1 : padding); ii++)
-        cout << ' ';
-
-    cout << '\n';
 }
 
 void Table::draw() {
     drawTitle();
-    drawHorLine();
+    drawLine();
     drawRow(columns, -1);
-    drawHorLine();
+    drawLine();
 
-    for(int i = 0; i < values.size(); i++){
+    for(int i = 0; i < values.size(); i++)
         drawRow(values[i], i);
-    }
 
-    drawHorLine();
+    drawLine();
 }
 
-//SelectionTable
+//SelectionTable class
 
 SelectionTable::SelectionTable(const conUI &ui, const string &title) {
     _ui = ui;
@@ -216,9 +263,9 @@ SelectionTable::SelectionTable(const conUI &ui, const string &title) {
 
 void SelectionTable::draw() {
     drawTitle();
-    drawHorLine();
+    drawLine();
     drawRow(columns, -1);
-    drawHorLine();
+    drawLine();
 
     for(int i = 0; i < values.size(); i++){
         if(i == selected_idx) {
@@ -230,7 +277,7 @@ void SelectionTable::draw() {
         }
     }
 
-    drawHorLine();
+    drawLine();
 }
 
 int SelectionTable::show() {

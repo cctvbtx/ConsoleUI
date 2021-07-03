@@ -19,14 +19,13 @@ protected:
 
     string _title;
 
-    vector<int> extra_rows;
-
     bool showRowLabels = false;
+    bool separateRows = false;
 
     unsigned int calculateWidth();
     unsigned int getColumnWidth(int index);
     int getLabelsWidth();
-    void drawHorLine();
+    void drawLine();
     virtual void drawRow(const vector<string> &vec, int index);
     void drawTitle();
 
@@ -40,7 +39,7 @@ public:
     void removeColumn(int index);
     void insertColumn(const string &text, int index);
 
-    void addRow(const vector<string> &_values, const string &label = "");
+    void addRow(vector<string> row, const string &label = "");
     void removeRow(int index);
     void insertRow(const vector<string> &row, int index, const string &label = "");
 
@@ -53,13 +52,13 @@ public:
 };
 
 class SelectionTable : public Table {
+protected:
 
     int selected_idx = 0;
     conUI _ui;
-
     void draw() override;
 
-    public:
+public:
 
     explicit SelectionTable(const conUI &ui, const string &title = "");
     int show();
