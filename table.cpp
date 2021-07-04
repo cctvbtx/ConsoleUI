@@ -1,4 +1,4 @@
-#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
+#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"    //size_t to int conversions, please don't add more than INT_MAX rows or columns, thank you. TODO: fix this
 #include <iostream>
 #include <sstream>
 
@@ -256,9 +256,48 @@ void Table::draw() {
 
 //SelectionTable class
 
+//TODO: SelectionTable still doesn't handle newlines well
+
 SelectionTable::SelectionTable(const conUI &ui, const string &title) {
     _ui = ui;
     _title = title;
+}
+
+void SelectionTable::drawRow(const vector<string> &vec, int index) {
+
+    if(showRowLabels) {
+
+        if(index == -1) {
+            cout << repeatStr(" ", getLabelsWidth());
+        } else {
+            cout << rows[index] << repeatStr(" ", getLabelsWidth() - rows[index].length());
+        }
+    }
+
+    cout << (showRowLabels ? "||" : "|");
+
+    for(int i = 0; i < vec.size(); i++) {
+
+        int padding = (getColumnWidth(i) - vec[i].size()) / 2;
+
+        bool isOdd = (getColumnWidth(i) - vec[i].size()) % 2;
+
+        cout << repeatStr(" ", padding) << vec[i] << repeatStr(" ", isOdd ? padding + 1 : padding);
+
+        if(i != vec.size() - 1)
+            cout << '|';
+
+    }
+
+    if(index == start_at && start_at != 0) {
+        cout << '-';
+    } else if(index == (start_at + max_length - 1) && index != rows.size() - 1) {
+        cout << '+';
+    } else {
+        cout << '|';
+    }
+
+    cout << '\n';
 }
 
 void SelectionTable::draw() {
@@ -267,7 +306,7 @@ void SelectionTable::draw() {
     drawRow(columns, -1);
     drawLine();
 
-    for(int i = 0; i < values.size(); i++){
+    for(int i = start_at; i < (max_length == -1 ? values.size() : start_at + max_length); i++){
         if(i == selected_idx) {
             _ui.invertColors();
             drawRow(values[i], i);
@@ -285,20 +324,33 @@ int SelectionTable::show() {
     draw();
 
     while(true) {
+        bool index_changed = false;
         KEY_EVENT_RECORD input_event = _ui.waitForKbEvent();
 
         switch(input_event.wVirtualKeyCode) {
             case VK_UP:
 
-                if(selected_idx != 0)
+                if(selected_idx != 0) {
+                    index_changed = true;
                     selected_idx--;
+
+                    if(selected_idx < start_at) {
+                        start_at--;
+                    }
+                }
 
                 break;
 
             case VK_DOWN:
 
-                if(selected_idx != values.size() - 1)
+                if(selected_idx != values.size() - 1) {
+                    index_changed = true;
                     selected_idx++;
+
+                    if (selected_idx >= start_at + max_length) {
+                        start_at++;
+                    }
+                }
 
                 break;
 
@@ -308,7 +360,10 @@ int SelectionTable::show() {
             case VK_RETURN:
                 return selected_idx;
         }
-        system("cls");
-        draw();
+
+        if(index_changed) {
+            system("cls");
+            draw();
+        }
     }
 }

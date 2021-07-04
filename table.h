@@ -20,7 +20,6 @@ protected:
     string _title;
 
     bool showRowLabels = false;
-    bool separateRows = false;
 
     unsigned int calculateWidth();
     unsigned int getColumnWidth(int index);
@@ -55,10 +54,14 @@ class SelectionTable : public Table {
 protected:
 
     int selected_idx = 0;
+    int start_at = 0;
     conUI _ui;
+    void drawRow(const vector<string> &vec, int index) override;
     void draw() override;
 
 public:
+
+    int max_length = -1;    //Maximum number of entries on screen, -1 = unlimited
 
     explicit SelectionTable(const conUI &ui, const string &title = "");
     int show();
